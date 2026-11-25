@@ -62,6 +62,34 @@ Open the address printed by Artisan (typically `http://127.0.0.1:8000`) and regi
 
 TweetFeed refresh requires outbound access to `api.tweetfeed.live`. The current integration uses the public endpoint and has no API key setting.
 
+## Deploy to Vercel with Neon
+
+Import the repository into Vercel using the **Container** preset. The root Dockerfile builds the frontend and runs Laravel with FrankenPHP on Vercel's assigned port. [Vercel's PHP container guide](https://vercel.com/kb/guide/deploy-php-on-vercel-with-docker)
+
+Set these variables in the Vercel production environment:
+
+| Variable | Value |
+| --- | --- |
+| `APP_KEY` | Generate a stable production key with `php artisan key:generate --show`. Store the output as a Vercel secret. |
+| `APP_URL` | Your public HTTPS deployment URL. |
+| `DATABASE_URL` | The Neon PostgreSQL connection string, preferably using the pooled endpoint and `sslmode=require`. |
+
+The image selects PostgreSQL and stores sessions and application cache in the database so they can be shared across instances. Before the first deployment, run Laravel migrations against the intended Neon database from a trusted terminal with `pdo_pgsql` enabled:
+
+```text
+DB_CONNECTION=pgsql
+DB_SSLMODE=require
+DATABASE_URL=<Neon connection string>
+```
+
+```sh
+php artisan migrate --force
+```
+
+Supply those variables through the shell or Laravel's local `.env`. For migrations, use Neon's direct connection string (`DATABASE_URL_UNPOOLED`) as a temporary `DB_URL` override. Laravel gives `DB_URL` precedence over `DATABASE_URL`, so the web app can continue using the pooled connection. Apply migrations separately from the Docker build so preview builds do not change the production schema. Existing SQLite or MySQL records require a separate data transfer.
+
+After deployment, check `/up` for application boot, then sign in and open the dashboard to verify the database and shared sessions.
+
 ## Import format
 
 Admins can download a template from the **Import** dialog in Threat Records. Upload a CSV or XLSX file of up to 5 MB and 5,000 data rows.

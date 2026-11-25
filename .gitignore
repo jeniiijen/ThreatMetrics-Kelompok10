@@ -3,6 +3,9 @@
 .env
 .env.backup
 .env.production
+.env.*
+!.env.example
+/.vercel/
 .phpactor.json
 .phpunit.result.cache
 /.agents/
@@ -27,3 +30,4 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/.neon

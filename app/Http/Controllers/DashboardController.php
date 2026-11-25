@@ -115,10 +115,11 @@ class DashboardController extends Controller
 
             $trendGrouping = 'month';
 
-            // SQLite tidak mengenal DATE_FORMAT, jadi pakai strftime.
-            $monthBucket = DB::connection()->getDriverName() === 'sqlite'
-                ? "strftime('%Y-%m-01', date)"
-                : "DATE_FORMAT(date, '%Y-%m-01')";
+            $monthBucket = match (DB::connection()->getDriverName()) {
+                'sqlite' => "strftime('%Y-%m-01', date)",
+                'pgsql' => "to_char(date, 'YYYY-MM-01')",
+                default => "DATE_FORMAT(date, '%Y-%m-01')",
+            };
 
             $monthlyCounts = (clone $query)
                 ->selectRaw(
