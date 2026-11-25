@@ -8,6 +8,7 @@ use App\Http\Controllers\ThreatController;
 use App\Http\Controllers\ThreatDataTableController;
 use App\Http\Controllers\ThreatExportController;
 use App\Http\Controllers\ThreatImportController;
+use App\Http\Controllers\ThreatPdfController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -122,6 +123,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/threatmetrics/{threatmetric}', [ThreatController::class, 'show'])
         ->name('threatmetrics.show');
+
+    Route::get('/threatmetrics/{threatmetric}/pdf', ThreatPdfController::class)
+        ->middleware('throttle:30,1')
+        ->name('threatmetrics.pdf');
 
     /*
     |--------------------------------------------------------------------------

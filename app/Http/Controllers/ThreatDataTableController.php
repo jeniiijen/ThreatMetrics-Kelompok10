@@ -84,6 +84,7 @@ class ThreatDataTableController extends Controller
             'tags' => array_values(array_map('strval', (array) ($threat->tags ?? []))),
             'show_url' => route('threatmetrics.show', ['threatmetric' => $threat->id]),
             'edit_url' => route('threatmetrics.edit', ['threatmetric' => $threat->id]),
+            'pdf_url' => route('threatmetrics.pdf', ['threatmetric' => $threat->id]),
             'destroy_url' => route('threatmetrics.destroy', ['threatmetric' => $threat->id]),
         ];
     }

@@ -3,7 +3,9 @@
     Di-include dari threats/index.blade.php. Tabel yang dipakai: #threats-table.
 --}}
 
-@php($importReport = session('import_report'))
+@php
+    $importReport = session('import_report');
+@endphp
 
 {{-- LAPORAN HASIL IMPOR --}}
 @if($importReport)
@@ -384,6 +386,10 @@
                                     <a href="${escapeHtml(row.edit_url)}" class="btn btn-sm" title="Edit"
                                        style="background:#514b26; color:#f4d52d; border-radius:7px;">
                                         <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a href="${escapeHtml(row.pdf_url)}" class="btn btn-sm" title="Download PDF"
+                                       style="background:#3a1f2b; color:#ff6b8a; border-radius:7px;">
+                                        <i class="bi bi-file-earmark-pdf"></i>
                                     </a>
                                     <form action="${escapeHtml(row.destroy_url)}" method="POST"
                                           onsubmit="return confirm('Yakin ingin menghapus data ini?')">

@@ -112,6 +112,15 @@ test('spss export returns a zip', function () {
     expect($response->headers->get('content-type'))->toContain('zip');
 });
 
+test('a signed-in user can download a threat report as a PDF', function () {
+    $threat = makeThreat();
+
+    $response = $this->get(route('threatmetrics.pdf', ['threatmetric' => $threat]));
+
+    $response->assertOk()->assertHeader('Content-Type', 'application/pdf');
+    expect($response->getContent())->toStartWith('%PDF-');
+});
+
 test('export redirects with an error when nothing matches', function () {
     $this->get(route('threatmetrics.export', ['format' => 'xlsx']))
         ->assertRedirect(route('threatmetrics.index'))

@@ -6,6 +6,7 @@ use App\Models\Threat;
 use App\Models\ApiSyncState;
 use App\Models\Ioc;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -114,16 +115,17 @@ class DashboardController extends Controller
 
             $trendGrouping = 'month';
 
+            // SQLite tidak mengenal DATE_FORMAT, jadi pakai strftime.
+            $monthBucket = DB::connection()->getDriverName() === 'sqlite'
+                ? "strftime('%Y-%m-01', date)"
+                : "DATE_FORMAT(date, '%Y-%m-01')";
+
             $monthlyCounts = (clone $query)
                 ->selectRaw(
-                    "DATE_FORMAT(date, '%Y-%m-01') as bucket, COUNT(*) as total"
+                    "{$monthBucket} as bucket, COUNT(*) as total"
                 )
-                ->groupByRaw(
-                    "DATE_FORMAT(date, '%Y-%m-01')"
-                )
-                ->orderByRaw(
-                    "DATE_FORMAT(date, '%Y-%m-01')"
-                )
+                ->groupByRaw($monthBucket)
+                ->orderByRaw($monthBucket)
                 ->pluck('total', 'bucket');
 
             $period = CarbonPeriod::create(

@@ -56,6 +56,12 @@
                 <i class="bi bi-arrow-left me-1"></i> Back
             </a>
 
+            {{-- Unduh laporan PDF - Anggota 5 --}}
+            <a href="{{ route('threatmetrics.pdf', ['threatmetric' => $threat->id]) }}"
+               class="btn btn-danger btn-sm">
+                <i class="bi bi-file-earmark-pdf me-1"></i> PDF
+            </a>
+
             <a href="{{ route('threatmetrics.edit', ['threatmetric' => $threat->id]) }}"
                class="btn btn-warning btn-sm">
                 <i class="bi bi-pencil me-1"></i> Edit
@@ -134,7 +140,55 @@
                 </div>
             </div>
 
+            {{-- Catatan / Analisis (Quill rich text) - Anggota 5 --}}
+            <div class="col-12">
+                <div class="threat-detail-box">
+                    <div class="threat-detail-label">
+                        <i class="bi bi-journal-text me-1"></i>
+                        Catatan / Analisis Threat
+                    </div>
+                    @if($threat->notes)
+                        <div class="threat-detail-value threat-notes-content"
+                             style="overflow-wrap:anywhere;">
+                            {!! $threat->notes !!}
+                        </div>
+                    @else
+                        <p class="threat-detail-value threat-muted">
+                            Belum ada catatan/analisis untuk ancaman ini.
+                        </p>
+                    @endif
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
+
+<style>
+    /* Konten catatan Quill - pastikan teks terbaca di tema gelap */
+    .threat-notes-content {
+        color: #e8f0f7;
+        line-height: 1.6;
+    }
+    .threat-notes-content h1,
+    .threat-notes-content h2,
+    .threat-notes-content h3 {
+        color: #ffffff;
+        margin: 0.6em 0 0.3em;
+    }
+    .threat-notes-content ul,
+    .threat-notes-content ol {
+        padding-left: 1.5em;
+        margin: 0.4em 0;
+    }
+    .threat-notes-content blockquote {
+        border-left: 3px solid #159be8;
+        padding-left: 12px;
+        color: #b8d8ee;
+        margin: 0.4em 0;
+    }
+    .threat-notes-content a {
+        color: #159be8;
+    }
+</style>
 @endsection
