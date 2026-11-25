@@ -1,10 +1,20 @@
 <?php
 
 use App\Models\Threat;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAs(User::factory()->create());
+});
+
+test('regular users cannot import threat records or download import templates', function () {
+    $this->post(route('threatmetrics.import'))->assertForbidden();
+    $this->get(route('threatmetrics.import.template', ['format' => 'csv']))->assertForbidden();
+});
 
 function makeThreat(array $overrides = []): Threat
 {
@@ -39,6 +49,8 @@ test('datatable endpoint filters by search and type', function () {
 });
 
 test('import reports berhasil, ditolak, and tidak valid per row', function () {
+    $this->actingAs(User::factory()->create(['role' => 'admin']));
+
     $csv = implode("\n", [
         'date,user,type,value,tags',
         '2026-11-20 10:00:00,PhishStats,domain,evil.com,"#a, #b"',
@@ -58,6 +70,8 @@ test('import reports berhasil, ditolak, and tidak valid per row', function () {
 });
 
 test('import rejects a file without the required columns', function () {
+    $this->actingAs(User::factory()->create(['role' => 'admin']));
+
     $this->post(route('threatmetrics.import'), [
         'file' => UploadedFile::fake()->createWithContent('threats.csv', "foo,bar\n1,2"),
     ])->assertRedirect(route('threatmetrics.index'))
@@ -67,6 +81,8 @@ test('import rejects a file without the required columns', function () {
 });
 
 test('import rejects unsupported file types', function () {
+    $this->actingAs(User::factory()->create(['role' => 'admin']));
+
     $this->post(route('threatmetrics.import'), [
         'file' => UploadedFile::fake()->create('threats.pdf', 10, 'application/pdf'),
     ])->assertSessionHasErrors('file');

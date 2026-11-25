@@ -143,12 +143,14 @@
                     </ul>
                 </div>
 
-                <button type="button"
-                        class="btn btn-sm btn-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#importModal">
-                    <i class="bi bi-upload me-1"></i> Import
-                </button>
+                @if(auth()->user()->isAdmin())
+                    <button type="button"
+                            class="btn btn-sm btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#importModal">
+                        <i class="bi bi-upload me-1"></i> Import
+                    </button>
+                @endif
 
             </div>
         </div>
@@ -156,6 +158,7 @@
 </div>
 
 {{-- MODAL IMPOR --}}
+@if(auth()->user()->isAdmin())
 <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <form class="modal-content"
@@ -205,6 +208,8 @@
         </form>
     </div>
 </div>
+
+@endif
 
 @push('styles')
     <link href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">

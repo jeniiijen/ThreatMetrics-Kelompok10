@@ -503,7 +503,7 @@
 
     {{-- NAVBAR --}}
     <nav class="tm-navbar">
-
+        
         <a href="{{ route('dashboard') }}" class="tm-brand">
             <div class="tm-brand-icon">
                 <i class="bi bi-shield-check"></i>
@@ -537,7 +537,39 @@
             </a>
         </div>
 
-        
+        <div class="d-flex align-items-center gap-2">
+
+            <a href="{{ route('account.settings') }}" class="btn btn-sm btn-outline-light"
+               aria-label="Pengaturan Akun untuk {{ auth()->user()->name }}">
+                <i class="bi bi-person-circle me-1"></i>
+                Pengaturan Akun
+            </a>
+
+            <form action="{{ route('logout') }}"
+                method="POST"
+                class="m-0">
+
+                @csrf
+
+                <button type="submit"
+                        class="btn btn-sm"
+                        style="
+                            color: #13c9dc;
+                            border: 1px solid #13c9dc;
+                            background: transparent;
+                            border-radius: 7px;
+                            padding: 7px 13px;
+                        ">
+
+                    <i class="bi bi-box-arrow-right me-1"></i>
+                    Logout
+
+                </button>
+            </form>
+
+        </div>
+
+
         <form id="refreshApiForm"
             action="{{ route('tweetfeed.sync') }}"
             method="POST">

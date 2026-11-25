@@ -1,45 +1,135 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ThreatController;
+use App\Http\Controllers\AccountSettingsController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SyncController;
+use App\Http\Controllers\ThreatController;
+use App\Http\Controllers\ThreatDataTableController;
+use App\Http\Controllers\ThreatExportController;
+use App\Http\Controllers\ThreatImportController;
+use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
-    return redirect()->route('threatmetrics.index');
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
 });
 
-// Dashboard Anggota 3
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->name('dashboard');
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
 
-// Refresh API TweetFeed
-Route::post('/tweetfeed/sync', SyncController::class)
-    ->name('tweetfeed.sync');
+Route::middleware('guest')->group(function () {
 
-// Anggota 4 - DataTables, impor, dan ekspor Threat
-// Harus berada SEBELUM Route::resource agar tidak tertangkap route {threatmetric}.
-Route::prefix('threatmetrics')->name('threatmetrics.')->group(function () {
-    Route::get('data', \App\Http\Controllers\ThreatDataTableController::class)
-        ->name('data');
+    Route::get('/login', [AuthController::class, 'showLogin'])
+        ->name('login');
 
-    Route::get('export/{format}', \App\Http\Controllers\ThreatExportController::class)
+    Route::post('/login', [AuthController::class, 'login'])
+        ->middleware('throttle:5,1')
+        ->name('login.store');
+
+    Route::get('/register', [AuthController::class, 'showRegister'])
+        ->name('register');
+
+    Route::post('/register', [AuthController::class, 'register'])
+        ->middleware('throttle:5,1')
+        ->name('register.store');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/account/settings', [AccountSettingsController::class, 'show'])
+        ->name('account.settings');
+
+    Route::put('/account/settings/password', [AccountSettingsController::class, 'updatePassword'])
+        ->middleware('throttle:5,1')
+        ->name('account.password.update');
+
+    // Dashboard: Admin dan User
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Threat Records - Admin Only
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware('role:admin')->group(function () {
+
+        Route::get('/threatmetrics/import/template/{format}', [ThreatImportController::class, 'template'])
+            ->whereIn('format', ['xlsx', 'csv'])
+            ->name('threatmetrics.import.template');
+
+        Route::post('/threatmetrics/import', [ThreatImportController::class, 'store'])
+            ->middleware('throttle:10,1')
+            ->name('threatmetrics.import');
+
+        Route::get('/threatmetrics/create', [ThreatController::class, 'create'])
+            ->name('threatmetrics.create');
+
+        Route::post('/threatmetrics', [ThreatController::class, 'store'])
+            ->name('threatmetrics.store');
+
+        Route::get('/threatmetrics/{threatmetric}/edit', [ThreatController::class, 'edit'])
+            ->name('threatmetrics.edit');
+
+        Route::put('/threatmetrics/{threatmetric}', [ThreatController::class, 'update'])
+            ->name('threatmetrics.update');
+
+        Route::patch('/threatmetrics/{threatmetric}', [ThreatController::class, 'update']);
+
+        Route::delete('/threatmetrics/{threatmetric}', [ThreatController::class, 'destroy'])
+            ->name('threatmetrics.destroy');
+
+        // Refresh TweetFeed API: Admin Only
+        Route::post('/tweetfeed/sync', SyncController::class)
+            ->name('tweetfeed.sync');
+
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Threat Records - Admin and User (Read Only)
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/threatmetrics', [ThreatController::class, 'index'])
+        ->name('threatmetrics.index');
+
+    Route::get('/threatmetrics/data', ThreatDataTableController::class)
+        ->name('threatmetrics.data');
+
+    Route::get('/threatmetrics/export/{format}', ThreatExportController::class)
         ->whereIn('format', ['xlsx', 'csv', 'spss'])
         ->middleware('throttle:30,1')
-        ->name('export');
+        ->name('threatmetrics.export');
 
-    Route::get('import/template/{format}', [\App\Http\Controllers\ThreatImportController::class, 'template'])
-        ->whereIn('format', ['xlsx', 'csv'])
-        ->name('import.template');
+    Route::get('/threatmetrics/{threatmetric}', [ThreatController::class, 'show'])
+        ->name('threatmetrics.show');
 
-    Route::post('import', [\App\Http\Controllers\ThreatImportController::class, 'store'])
-        ->middleware('throttle:10,1')
-        ->name('import');
+    /*
+    |--------------------------------------------------------------------------
+    | Logout
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/logout', [AuthController::class, 'logout'])
+        ->name('logout');
+
 });
-
-
-// CRUD Threat - jangan dihapus
-Route::resource('threatmetrics', ThreatController::class)
-    ->names('threatmetrics');
-
