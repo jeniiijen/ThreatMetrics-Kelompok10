@@ -1,0 +1,11 @@
+app/Http/Controllers/DashboardController.php:49: trailing whitespace.
+[32m+[m[41m        [m
+resources/views/dashboard/index.blade.php:108: trailing whitespace.
+[32m+[m[41m    [m
+resources/views/dashboard/index.blade.php:540: trailing whitespace.
+[32m+[m[41m        [m
+resources/views/dashboard/index.blade.php:593: trailing whitespace.
+[32m+[m[41m            [m
+resources/views/dashboard/index.blade.php:1141: trailing whitespace.
+[32m+[m[41m            [m
+routes/web.php:25: new blank line at EOF.
