@@ -3,17 +3,22 @@
 use App\Http\Controllers\AnalystNoteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Integration\TweetFeedSyncController;
+use App\Http\Controllers\Threat\ThreatController;
 use App\Http\Controllers\Threat\ThreatDataTableController;
-use App\Http\Controllers\ThreatMetricController;
-use App\Http\Controllers\ThreatPdfController;
+use App\Http\Controllers\Threat\ThreatExportController;
+use App\Http\Controllers\Threat\ThreatImportController;
+use App\Http\Controllers\Threat\ThreatPdfController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-// Main dashboard and IOC overview
-Route::get('/', [DashboardController::class, 'index'])
+// Root "/" automatically redirects to "/threatmetrics"
+Route::redirect('/', '/threatmetrics');
+
+// Main dashboard & IOC overview at "/threatmetrics"
+Route::get('/threatmetrics', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 // TweetFeed synchronization
@@ -25,6 +30,10 @@ Route::get('/threats/data', [ThreatDataTableController::class, 'index'])
     ->name('threatmetrics.data');
 
 // Filtered report exports (.xlsx, .csv, .zip SPSS, and .pdf)
+Route::get('/threats/export/{format}', [ThreatExportController::class, 'export'])
+    ->whereIn('format', ['xlsx', 'csv', 'spss'])
+    ->name('threatmetrics.export');
+
 Route::get('/threats/export/pdf', [ThreatPdfController::class, 'export'])
     ->name('threatmetrics.export.pdf');
 
@@ -70,17 +79,11 @@ Route::get('/threats/import/template/{format?}', function (Request $request, ?st
 })->name('threatmetrics.import.template');
 
 // Import threat IOC file endpoint
-Route::post('/threats/import', function (Request $request) {
-    $request->validate([
-        'file' => ['required', 'file', 'mimes:xlsx,csv,txt', 'max:10240'],
-    ]);
+Route::post('/threats/import', [ThreatImportController::class, 'import'])
+    ->name('threatmetrics.import');
 
-    return redirect()->route('dashboard')
-        ->with('success', 'File import diterima (' . $request->file('file')->getClientOriginalName() . ').');
-})->name('threatmetrics.import');
-
-// IOC CRUD routes
-Route::resource('threatmetrics', ThreatMetricController::class);
+// IOC CRUD routes (exclude index so "/threatmetrics" stays mapped to DashboardController@index)
+Route::resource('threatmetrics', ThreatController::class)->except(['index']);
 
 // Analyst notes endpoints
 Route::get('/analyst-notes', [AnalystNoteController::class, 'index'])
