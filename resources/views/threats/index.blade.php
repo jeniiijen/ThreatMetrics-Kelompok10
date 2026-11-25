@@ -200,6 +200,14 @@
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
 
+                                    {{-- PDF (Anggota 5) --}}
+                                    <a href="{{ route('threatmetrics.pdf', ['threatmetric' => $threat->id]) }}"
+                                       class="btn btn-sm"
+                                       title="Download PDF"
+                                       style="background:#3a1f2b; color:#ff6b8a; border-radius:7px;">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                    </a>
+
                                     {{-- DELETE --}}
                                     <form action="{{ route('threatmetrics.destroy', ['threatmetric' => $threat->id]) }}"
                                           method="POST"

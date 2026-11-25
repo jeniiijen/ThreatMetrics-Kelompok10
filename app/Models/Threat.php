@@ -16,6 +16,7 @@ class Threat extends Model
         'value',
         'tags',
         'tweet',
+        'notes',
     ];
 
     protected function casts(): array

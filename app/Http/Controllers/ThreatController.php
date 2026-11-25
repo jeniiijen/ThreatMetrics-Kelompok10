@@ -75,11 +75,15 @@ class ThreatController extends Controller
             'value' => 'required|numeric',
             'tags' => 'nullable|string',
             'tweet' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $validated['tags'] = $this->formatTags(
             $validated['tags'] ?? ''
         );
+
+        // Simpan catatan/analisis dari Quill Editor (HTML).
+        $validated['notes'] = $request->input('notes') ?: null;
 
         Threat::create($validated);
 
@@ -120,11 +124,15 @@ class ThreatController extends Controller
             'value' => 'required|numeric',
             'tags' => 'nullable|string',
             'tweet' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $validated['tags'] = $this->formatTags(
             $validated['tags'] ?? ''
         );
+
+        // Perbarui catatan/analisis dari Quill Editor (HTML).
+        $validated['notes'] = $request->input('notes') ?: null;
 
         $threatmetric->update($validated);
 

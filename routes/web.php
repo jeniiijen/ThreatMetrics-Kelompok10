@@ -36,6 +36,11 @@ Route::prefix('threatmetrics')->name('threatmetrics.')->group(function () {
     Route::post('import', [\App\Http\Controllers\ThreatImportController::class, 'store'])
         ->middleware('throttle:10,1')
         ->name('import');
+
+    // Anggota 5 - Unduh laporan PDF (FPDF)
+    Route::get('{threatmetric}/pdf', \App\Http\Controllers\ThreatPdfController::class)
+        ->middleware('throttle:30,1')
+        ->name('pdf');
 });
 
 
