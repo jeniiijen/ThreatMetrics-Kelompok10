@@ -38,6 +38,9 @@
         </div>
     @endif
 
+    {{-- ANGGOTA 4: laporan impor, filter, ekspor/impor, dan skrip DataTables --}}
+    @include('threats.partials.datatable-tools')
+
     {{-- TABLE CARD --}}
     <div class="card"
          style="background:#1e2b37; border:1px solid #304252; border-radius:12px; overflow:hidden;">
@@ -61,7 +64,7 @@
         {{-- TABLE --}}
         <div class="table-responsive">
 
-            <table class="table table-borderless align-middle mb-0">
+            <table id="threats-table" class="table table-borderless align-middle mb-0">
 
                 <thead style="background:#263543;">
 
