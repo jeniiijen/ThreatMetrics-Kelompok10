@@ -3,6 +3,12 @@
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
+$postgresUrl = env('DB_URL') ?: env('DATABASE_URL');
+$postgresHost = $postgresUrl ? parse_url($postgresUrl, PHP_URL_HOST) : null;
+$usesNeonPooler = is_string($postgresHost)
+    && str_ends_with($postgresHost, '.neon.tech')
+    && str_contains($postgresHost, '-pooler.');
+
 return [
 
     /*
@@ -86,9 +92,9 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),
+            'url' => $postgresUrl,
             'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
+            'port' => $postgresUrl ? '5432' : env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'laravel'),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
@@ -97,6 +103,11 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'options' => $usesNeonPooler && extension_loaded('pdo_pgsql') ? [
+                (defined('Pdo\\Pgsql::ATTR_DISABLE_PREPARES')
+                    ? \Pdo\Pgsql::ATTR_DISABLE_PREPARES
+                    : PDO::PGSQL_ATTR_DISABLE_PREPARES) => true,
+            ] : [],
         ],
 
         'sqlsrv' => [
