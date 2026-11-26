@@ -30,11 +30,11 @@ Route::get('/threats/data', [ThreatDataTableController::class, 'index'])
     ->name('threatmetrics.data');
 
 // Filtered report exports (.xlsx, .csv, .zip SPSS, and .pdf)
-Route::get('/threats/export/{format}', [ThreatExportController::class, 'export'])
+Route::get('/threats/export/{format}', ThreatExportController::class)
     ->whereIn('format', ['xlsx', 'csv', 'spss'])
     ->name('threatmetrics.export');
 
-Route::get('/threats/export/pdf', [ThreatPdfController::class, 'export'])
+Route::get('/threats/export/pdf', ThreatPdfController::class)
     ->name('threatmetrics.export.pdf');
 
 // Import template download (.xlsx / .csv)
@@ -79,7 +79,7 @@ Route::get('/threats/import/template/{format?}', function (Request $request, ?st
 })->name('threatmetrics.import.template');
 
 // Import threat IOC file endpoint
-Route::post('/threats/import', [ThreatImportController::class, 'import'])
+Route::post('/threats/import', [ThreatImportController::class, 'store'])
     ->name('threatmetrics.import');
 
 // IOC CRUD routes (exclude index so "/threatmetrics" stays mapped to DashboardController@index)

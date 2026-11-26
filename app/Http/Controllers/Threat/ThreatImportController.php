@@ -32,8 +32,19 @@ class ThreatImportController extends Controller
                 ->with('error', $e->getMessage());
         }
 
+        $summary = $report['summary'];
+        $message = 'Import selesai: '.$summary[ThreatImportService::STATUS_SUCCESS].' berhasil, '
+            .$summary[ThreatImportService::STATUS_REJECTED].' ditolak (duplikat), '
+            .$summary[ThreatImportService::STATUS_INVALID].' tidak valid dari '.$summary['total'].' baris.';
+
+        if ($report['details'] !== []) {
+            $first = $report['details'][0];
+            $message .= ' Contoh masalah baris '.$first['row'].': '.$first['reason'].'.';
+        }
+
         return redirect()
             ->route('dashboard')
+            ->with($summary[ThreatImportService::STATUS_SUCCESS] > 0 ? 'success' : 'error', $message)
             ->with('import_report', $report);
     }
 

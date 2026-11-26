@@ -252,6 +252,11 @@ class ThreatExportService
             throw new RuntimeException('Tidak dapat membuat file sementara untuk ekspor SPSS.');
         }
 
+        // Ekstensi PHP zip belum aktif: pakai ZipStream (sudah ada di vendor).
+        if (! class_exists(ZipArchive::class)) {
+            return $this->zipSpssWithoutExtension($path, $spss);
+        }
+
         $zip = new ZipArchive;
 
         if ($zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
@@ -261,6 +266,35 @@ class ThreatExportService
         $zip->addFromString(self::SPSS_CSV_NAME, $spss['csv']);
         $zip->addFromString(self::SPSS_SYNTAX_NAME, $spss['syntax']);
         $zip->close();
+
+        return $path;
+    }
+
+    /**
+     * Cadangan bila ekstensi zip PHP tidak aktif. Menulis ZIP ke $path.
+     *
+     * @param  array{csv: string, syntax: string}  $spss
+     */
+    private function zipSpssWithoutExtension(string $path, array $spss): string
+    {
+        $stream = fopen($path, 'wb');
+
+        if ($stream === false) {
+            throw new RuntimeException('Tidak dapat membuat file ZIP untuk ekspor SPSS.');
+        }
+
+        $zip = new \ZipStream\ZipStream(
+            outputStream: $stream,
+            enableZip64: false,
+            defaultEnableZeroHeader: false,
+            sendHttpHeaders: false,
+        );
+
+        $zip->addFile(self::SPSS_CSV_NAME, $spss['csv']);
+        $zip->addFile(self::SPSS_SYNTAX_NAME, $spss['syntax']);
+        $zip->finish();
+
+        fclose($stream);
 
         return $path;
     }
